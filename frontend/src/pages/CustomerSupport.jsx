@@ -105,12 +105,12 @@ const CustomerSupport = () => {
                     <Phone className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <div className="font-semibold text-gray-900">+91 9876543210</div>
+                    <div className="font-semibold text-gray-900">+91 70001 21212</div>
                     <div className="text-sm text-gray-500">General Support</div>
                   </div>
                 </div>
                 <button
-                  onClick={() => handleCall('9876543210')}
+                  onClick={() => handleCall('7000121212')}
                   className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-600 transition-colors min-w-[60px]"
                 >
                   Call
