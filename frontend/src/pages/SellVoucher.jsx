@@ -8,7 +8,8 @@ import { useSEO } from '../hooks/useSEO'
 
 const brands = [
   'Google Play',
-  'Amazon',
+  'Amazon Gift Card',
+  'Amazon Shopping Voucher',
   'Flipkart',
   'Steam',
   'Myntra',

@@ -7,7 +7,7 @@ import {
   Key, Calendar, Store
 } from 'lucide-react'
 
-const brandsList = ['Google Play', 'Amazon', 'Flipkart', 'Steam', 'Myntra', 'BigBasket']
+const brandsList = ['Google Play', 'Amazon Gift Card', 'Amazon Shopping Voucher', 'Flipkart', 'Steam', 'Myntra', 'BigBasket']
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'
 
 const GiftCards = () => {
@@ -195,7 +195,15 @@ const GiftCards = () => {
       stockQuantity: Number(newVariantForm.stockQuantity || 0),
       maxAddCartItem: newVariantForm.maxAddCartItem ? Number(newVariantForm.maxAddCartItem) : 4,
       isActive: true,
-      images: [`/products/${selectedBrand.toLowerCase().replace(' ', '%20')}.avif`]
+      images: [
+        selectedBrand.toLowerCase().includes('amazon') ? '/products/amazon.avif' :
+        selectedBrand.toLowerCase().includes('google') ? '/products/google%20play.avif' :
+        selectedBrand.toLowerCase().includes('flipkart') ? '/products/flipkart.avif' :
+        selectedBrand.toLowerCase().includes('steam') ? '/products/steam.avif' :
+        selectedBrand.toLowerCase().includes('myntra') ? '/products/myntra.avif' :
+        selectedBrand.toLowerCase().includes('bigbasket') ? '/products/bigbasket.avif' :
+        `/products/${selectedBrand.toLowerCase().replace(/ /g, '%20')}.avif`
+      ]
     }
     try {
       const res = await axios.post(`${BACKEND_URL}/api/products/add`, payload, { withCredentials: true })
