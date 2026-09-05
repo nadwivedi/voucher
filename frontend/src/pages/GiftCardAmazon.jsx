@@ -34,13 +34,24 @@ const GiftCardAmazon = () => {
   useEffect(() => {
     const fetchAmazonProducts = async () => {
       try {
-        const res = await fetch(`${BACKEND_URL}/api/products/category/gift-cards?brand=Amazon&limit=200`)
-        const data = await res.json()
-        if (data.success && data.data && data.data.length > 0) {
-          // Keep active products
-          const active = data.data.filter(p => p.isActive !== false)
-          setDbProducts(active)
+        // Fetch all Amazon products from backend using search API
+        let items = []
+        const searchRes = await fetch(`${BACKEND_URL}/api/products/search?q=Amazon&limit=200`)
+        const searchData = await searchRes.json()
+        
+        if (searchData.success && searchData.data && searchData.data.length > 0) {
+          items = searchData.data
+        } else {
+          const catRes = await fetch(`${BACKEND_URL}/api/products/category/gift-cards?brand=Amazon&limit=200`)
+          const catData = await catRes.json()
+          if (catData.success && catData.data) {
+            items = catData.data
+          }
         }
+        
+        // Filter only active products belonging to Amazon
+        const active = items.filter(p => p.isActive !== false && p.brand && p.brand.toLowerCase().includes('amazon'))
+        setDbProducts(active)
       } catch (err) {
         console.error('Error fetching Amazon products:', err)
       }
@@ -52,7 +63,8 @@ const GiftCardAmazon = () => {
   const normalizeBrand = (brand) => {
     if (!brand) return 'Amazon Pay Gift Card'
     const b = brand.toLowerCase()
-    if (b.includes('shopping voucher') || b.includes('voucher')) return 'Amazon Shopping Voucher'
+    // Only map to Shopping Voucher if the brand explicitly specifies shopping
+    if (b.includes('shopping')) return 'Amazon Shopping Voucher'
     return 'Amazon Pay Gift Card'
   }
 
@@ -76,12 +88,21 @@ const GiftCardAmazon = () => {
     ? filteredFromDb.map(p => {
         const denom = p.originalPrice || p.price
         const isShoppingVoucher = currentBrand === 'Amazon Shopping Voucher'
-        const defaultName = isShoppingVoucher 
-          ? `Amazon Shopping ₹${denom} Voucher`
-          : `Amazon Pay ₹${denom} Gift Card`
+        
+        let name = p.seoTitle || p.name
+        if (!name || name.toLowerCase().includes('code - ₹') || name.toLowerCase().includes('code - rs')) {
+          name = isShoppingVoucher 
+            ? `Amazon Shopping ₹${denom} Voucher`
+            : `Amazon Pay ₹${denom} Gift Card`
+        } else {
+          name = name
+            .replace(/Amazon Gift Card/gi, currentBrand)
+            .replace(/^Amazon\s*-\s*/gi, `${currentBrand} - `)
+        }
+
         return {
           ...p,
-          name: p.seoTitle || p.name || defaultName,
+          name,
           brand: currentBrand
         }
       }).sort((a, b) => (a.price || 0) - (b.price || 0))
