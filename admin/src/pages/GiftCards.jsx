@@ -247,7 +247,18 @@ const GiftCards = () => {
 
   // ---- Derived data ----
   const brandProducts = products
-    .filter(p => p.brand === selectedBrand)
+    .filter(p => {
+      if (!p.brand) return false
+      if (selectedBrand === 'Amazon Pay Gift Card') {
+        const b = p.brand.toLowerCase()
+        return b.includes('amazon') && !b.includes('shopping')
+      }
+      if (selectedBrand === 'Amazon Shopping Voucher') {
+        const b = p.brand.toLowerCase()
+        return b.includes('amazon') && b.includes('shopping')
+      }
+      return p.brand === selectedBrand
+    })
     .filter(p => showInactive ? true : p.isActive)
     .sort((a, b) => (a.originalPrice || a.price) - (b.originalPrice || b.price))
   const filteredUserListings = userListings.filter(c =>

@@ -126,7 +126,19 @@ const GiftCardDetail = () => {
 
         if (items.length > 0) {
           const active = items.filter(v => v.isActive !== false)
-          const mappedVouchers = active.map(v => ({
+          const denomMap = new Map()
+          active.forEach(v => {
+            const denom = v.originalPrice || v.price
+            if (!denomMap.has(denom)) {
+              denomMap.set(denom, v)
+            } else {
+              const existing = denomMap.get(denom)
+              if ((v.stockQuantity || 0) > (existing.stockQuantity || 0) || new Date(v.updatedAt || v.createdAt || 0) > new Date(existing.updatedAt || existing.createdAt || 0)) {
+                denomMap.set(denom, v)
+              }
+            }
+          })
+          const mappedVouchers = Array.from(denomMap.values()).map(v => ({
             ...v,
             denom: v.originalPrice || v.price,
             name: v.seoTitle || v.name || `${brandInfo.name} - ₹${v.originalPrice || v.price}`

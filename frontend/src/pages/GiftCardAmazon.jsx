@@ -85,27 +85,41 @@ const GiftCardAmazon = () => {
   const filteredFromDb = dbProducts.filter(p => normalizeBrand(p.brand) === currentBrand)
 
   const currentVouchers = filteredFromDb.length > 0 
-    ? filteredFromDb.map(p => {
-        const denom = p.originalPrice || p.price
-        const isShoppingVoucher = currentBrand === 'Amazon Shopping Voucher'
-        
-        let name = p.seoTitle || p.name
-        if (!name || name.toLowerCase().includes('code - ₹') || name.toLowerCase().includes('code - rs')) {
-          name = isShoppingVoucher 
-            ? `Amazon Shopping ₹${denom} Voucher`
-            : `Amazon Pay ₹${denom} Gift Card`
-        } else {
-          name = name
-            .replace(/Amazon Gift Card/gi, currentBrand)
-            .replace(/^Amazon\s*-\s*/gi, `${currentBrand} - `)
-        }
+    ? (() => {
+        const denomMap = new Map()
+        filteredFromDb.forEach(p => {
+          const denom = p.originalPrice || p.price
+          if (!denomMap.has(denom)) {
+            denomMap.set(denom, p)
+          } else {
+            const existing = denomMap.get(denom)
+            if ((p.stockQuantity || 0) > (existing.stockQuantity || 0) || new Date(p.updatedAt || p.createdAt || 0) > new Date(existing.updatedAt || existing.createdAt || 0)) {
+              denomMap.set(denom, p)
+            }
+          }
+        })
+        return Array.from(denomMap.values()).map(p => {
+          const denom = p.originalPrice || p.price
+          const isShoppingVoucher = currentBrand === 'Amazon Shopping Voucher'
+          
+          let name = p.seoTitle || p.name
+          if (!name || name.toLowerCase().includes('code - ₹') || name.toLowerCase().includes('code - rs')) {
+            name = isShoppingVoucher 
+              ? `Amazon Shopping ₹${denom} Voucher`
+              : `Amazon Pay ₹${denom} Gift Card`
+          } else {
+            name = name
+              .replace(/Amazon Gift Card/gi, currentBrand)
+              .replace(/^Amazon\s*-\s*/gi, `${currentBrand} - `)
+          }
 
-        return {
-          ...p,
-          name,
-          brand: currentBrand
-        }
-      }).sort((a, b) => (a.price || 0) - (b.price || 0))
+          return {
+            ...p,
+            name,
+            brand: currentBrand
+          }
+        }).sort((a, b) => (a.price || 0) - (b.price || 0))
+      })()
     : (currentBrand === 'Amazon Shopping Voucher' ? fallbackAmazonShoppingVouchers : fallbackAmazonGiftCards)
 
   useSEO({
