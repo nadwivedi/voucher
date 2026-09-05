@@ -28,7 +28,10 @@ const brandData = {
     img: '/products/amazon.avif',
     description: 'Get Amazon codes at the best prices. Instant delivery via email.',
     vouchers: [
+      { _id: 'amazon-10', denom: 10, price: 8, originalPrice: 10 },
+      { _id: 'amazon-50', denom: 50, price: 45, originalPrice: 50 },
       { _id: 'amazon-100', denom: 100, price: 88, originalPrice: 100 },
+      { _id: 'amazon-200', denom: 200, price: 175, originalPrice: 200 },
       { _id: 'amazon-500', denom: 500, price: 435, originalPrice: 500 },
       { _id: 'amazon-1000', denom: 1000, price: 870, originalPrice: 1000 },
       { _id: 'amazon-2000', denom: 2000, price: 1740, originalPrice: 2000 },
@@ -106,12 +109,27 @@ const GiftCardDetail = () => {
     const fetchVouchers = async () => {
       if (!brandInfo) return
       try {
-        const response = await fetch(`${BACKEND_URL}/api/products/category/gift-cards?brand=${brandInfo.name}&limit=50`)
-        const data = await response.json()
-        if (data.success && data.data.length > 0) {
-          const mappedVouchers = data.data.map(v => ({
+        const queryBrand = brand === 'amazon' ? 'Amazon' : brandInfo.name
+        
+        let items = []
+        const searchRes = await fetch(`${BACKEND_URL}/api/products/search?q=${encodeURIComponent(queryBrand)}&limit=100`)
+        const searchData = await searchRes.json()
+        if (searchData.success && searchData.data && searchData.data.length > 0) {
+          items = searchData.data
+        } else {
+          const catRes = await fetch(`${BACKEND_URL}/api/products/category/gift-cards?brand=${encodeURIComponent(queryBrand)}&limit=100`)
+          const catData = await catRes.json()
+          if (catData.success && catData.data) {
+            items = catData.data
+          }
+        }
+
+        if (items.length > 0) {
+          const active = items.filter(v => v.isActive !== false)
+          const mappedVouchers = active.map(v => ({
             ...v,
-            denom: v.originalPrice || v.price
+            denom: v.originalPrice || v.price,
+            name: v.seoTitle || v.name || `${brandInfo.name} - ₹${v.originalPrice || v.price}`
           }))
           const sorted = mappedVouchers.sort((a, b) => a.price - b.price)
           setFetchedVouchers(sorted)
@@ -123,7 +141,7 @@ const GiftCardDetail = () => {
       }
     }
     fetchVouchers()
-  }, [brandInfo, BACKEND_URL])
+  }, [brand, brandInfo, BACKEND_URL])
 
   const vouchers = fetchedVouchers.length > 0 ? fetchedVouchers : (brandInfo?.vouchers || [])
   const selected = vouchers.find(v => v.denom === selectedDenom) || vouchers[0]
