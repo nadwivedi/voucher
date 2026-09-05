@@ -48,34 +48,40 @@ const GiftCardAmazon = () => {
     fetchAmazonProducts()
   }, [BACKEND_URL])
 
-  // Two fixed Amazon variants as requested
-  const brandOptions = ['Amazon Pay Gift Card', 'Amazon Shopping Voucher']
+  // Helper to normalize DB brand to clean variant brand name
+  const normalizeBrand = (brand) => {
+    if (!brand) return 'Amazon Pay Gift Card'
+    const b = brand.toLowerCase()
+    if (b.includes('shopping voucher') || b.includes('voucher')) return 'Amazon Shopping Voucher'
+    return 'Amazon Pay Gift Card'
+  }
+
+  // Dynamically extract unique brand variants from backend products
+  const extractedBrands = Array.from(new Set(
+    dbProducts.map(p => normalizeBrand(p.brand))
+  ))
+
+  const brandOptions = extractedBrands.length > 0 
+    ? extractedBrands 
+    : ['Amazon Pay Gift Card', 'Amazon Shopping Voucher']
 
   const currentBrand = selectedBrand && brandOptions.includes(selectedBrand) 
     ? selectedBrand 
     : brandOptions[0]
 
-  // Filter and normalize products from DB for the selected brand variant
-  const filteredFromDb = dbProducts.filter(p => {
-    if (!p.brand) return false
-    const b = p.brand.toLowerCase()
-    if (currentBrand === 'Amazon Shopping Voucher') {
-      return b.includes('shopping voucher') || b.includes('voucher')
-    } else {
-      return b.includes('amazon') && !b.includes('shopping voucher') && !b.includes('voucher')
-    }
-  })
+  // Filter products from backend for the selected variant brand
+  const filteredFromDb = dbProducts.filter(p => normalizeBrand(p.brand) === currentBrand)
 
   const currentVouchers = filteredFromDb.length > 0 
     ? filteredFromDb.map(p => {
         const denom = p.originalPrice || p.price
         const isShoppingVoucher = currentBrand === 'Amazon Shopping Voucher'
-        const name = isShoppingVoucher 
+        const defaultName = isShoppingVoucher 
           ? `Amazon Shopping ₹${denom} Voucher`
           : `Amazon Pay ₹${denom} Gift Card`
         return {
           ...p,
-          name,
+          name: p.seoTitle || p.name || defaultName,
           brand: currentBrand
         }
       }).sort((a, b) => (a.price || 0) - (b.price || 0))
