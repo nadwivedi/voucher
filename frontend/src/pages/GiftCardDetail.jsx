@@ -24,7 +24,7 @@ const brandData = {
     ]
   },
   'amazon': {
-    name: 'Amazon',
+    name: 'Amazon Pay Gift Card',
     img: '/products/amazon.avif',
     description: 'Get Amazon codes at the best prices. Instant delivery via email.',
     vouchers: [

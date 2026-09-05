@@ -4,7 +4,7 @@ const mockProducts = [
     description: "Amazon Pay e-Gift Cards are the perfect gifting solution for all occasions. Redeemable on millions of products on Amazon.in. Safe, instant, and highly convenient.",
     category: "e-commerce",
     subCategory: "shopping",
-    brand: "Amazon",
+    brand: "Amazon Pay Gift Card",
     model: "E-Gift Card",
     price: 950,
     originalPrice: 1000,

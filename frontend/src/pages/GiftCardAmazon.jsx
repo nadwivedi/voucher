@@ -7,10 +7,10 @@ import { useSEO } from '../hooks/useSEO'
 import { ChevronDown } from 'lucide-react'
 
 const fallbackAmazonGiftCards = [
-  { _id: 'amazon-gc-100', name: 'Amazon Gift Card - ₹100', price: 88, originalPrice: 100, brand: 'Amazon Gift Card', category: 'gift-cards', images: ['/products/amazon.avif'], description: '₹100 Amazon Gift Card at just ₹88', stockQuantity: 50 },
-  { _id: 'amazon-gc-500', name: 'Amazon Gift Card - ₹500', price: 435, originalPrice: 500, brand: 'Amazon Gift Card', category: 'gift-cards', images: ['/products/amazon.avif'], description: '₹500 Amazon Gift Card at just ₹435', stockQuantity: 50 },
-  { _id: 'amazon-gc-1000', name: 'Amazon Gift Card - ₹1000', price: 870, originalPrice: 1000, brand: 'Amazon Gift Card', category: 'gift-cards', images: ['/products/amazon.avif'], description: '₹1000 Amazon Gift Card at just ₹870', stockQuantity: 50 },
-  { _id: 'amazon-gc-2000', name: 'Amazon Gift Card - ₹2000', price: 1740, originalPrice: 2000, brand: 'Amazon Gift Card', category: 'gift-cards', images: ['/products/amazon.avif'], description: '₹2000 Amazon Gift Card at just ₹1740', stockQuantity: 50 },
+  { _id: 'amazon-gc-100', name: 'Amazon Pay Gift Card - ₹100', price: 88, originalPrice: 100, brand: 'Amazon Pay Gift Card', category: 'gift-cards', images: ['/products/amazon.avif'], description: '₹100 Amazon Pay Gift Card at just ₹88', stockQuantity: 50 },
+  { _id: 'amazon-gc-500', name: 'Amazon Pay Gift Card - ₹500', price: 435, originalPrice: 500, brand: 'Amazon Pay Gift Card', category: 'gift-cards', images: ['/products/amazon.avif'], description: '₹500 Amazon Pay Gift Card at just ₹435', stockQuantity: 50 },
+  { _id: 'amazon-gc-1000', name: 'Amazon Pay Gift Card - ₹1000', price: 870, originalPrice: 1000, brand: 'Amazon Pay Gift Card', category: 'gift-cards', images: ['/products/amazon.avif'], description: '₹1000 Amazon Pay Gift Card at just ₹870', stockQuantity: 50 },
+  { _id: 'amazon-gc-2000', name: 'Amazon Pay Gift Card - ₹2000', price: 1740, originalPrice: 2000, brand: 'Amazon Pay Gift Card', category: 'gift-cards', images: ['/products/amazon.avif'], description: '₹2000 Amazon Pay Gift Card at just ₹1740', stockQuantity: 50 },
 ]
 
 const fallbackAmazonShoppingVouchers = [
@@ -48,34 +48,42 @@ const GiftCardAmazon = () => {
     fetchAmazonProducts()
   }, [BACKEND_URL])
 
-  // Extract unique brands dynamically from DB products
-  const availableBrands = Array.from(new Set(
-    dbProducts.map(p => p.brand).filter(b => b && b.toLowerCase().includes('amazon'))
-  ))
-
-  const brandOptions = availableBrands.length > 0 
-    ? availableBrands 
-    : ['Amazon Gift Card', 'Amazon Shopping Voucher']
+  // Two fixed Amazon variants as requested
+  const brandOptions = ['Amazon Pay Gift Card', 'Amazon Shopping Voucher']
 
   const currentBrand = selectedBrand && brandOptions.includes(selectedBrand) 
     ? selectedBrand 
     : brandOptions[0]
 
-  // Filter products from DB for the selected brand
-  const filteredFromDb = dbProducts.filter(p => p.brand === currentBrand)
+  // Filter and normalize products from DB for the selected brand variant
+  const filteredFromDb = dbProducts.filter(p => {
+    if (!p.brand) return false
+    const b = p.brand.toLowerCase()
+    if (currentBrand === 'Amazon Shopping Voucher') {
+      return b.includes('shopping voucher') || b.includes('voucher')
+    } else {
+      return b.includes('amazon') && !b.includes('shopping voucher') && !b.includes('voucher')
+    }
+  })
 
   const currentVouchers = filteredFromDb.length > 0 
-    ? filteredFromDb.map(p => ({
-        ...p,
-        name: p.seoTitle || p.name || `${p.brand} - ₹${p.originalPrice || p.price}`,
-        brand: p.brand || currentBrand
-      })).sort((a, b) => (a.price || 0) - (b.price || 0))
+    ? filteredFromDb.map(p => {
+        let name = p.seoTitle || p.name || `${currentBrand} - ₹${p.originalPrice || p.price}`
+        name = name
+          .replace(/Amazon Gift Card/gi, currentBrand)
+          .replace(/^Amazon\s*-\s*/gi, `${currentBrand} - `)
+        return {
+          ...p,
+          name,
+          brand: currentBrand
+        }
+      }).sort((a, b) => (a.price || 0) - (b.price || 0))
     : (currentBrand === 'Amazon Shopping Voucher' ? fallbackAmazonShoppingVouchers : fallbackAmazonGiftCards)
 
   useSEO({
-    title: 'Amazon Gift Cards & Vouchers | Buy Online & Save | GCHub',
-    description: 'Get Amazon gift card & shopping voucher codes instantly. Save on Amazon vouchers with instant digital delivery via email on GCHub.',
-    keywords: 'buy amazon gift card, amazon shopping voucher, cheap amazon codes, amazon redeem codes, GCHub',
+    title: `${currentBrand} | Buy Online & Save | GCHub`,
+    description: `Get ${currentBrand} codes instantly. Save on Amazon vouchers with instant digital delivery via email on GCHub.`,
+    keywords: 'buy amazon gift card, amazon pay gift card, amazon shopping voucher, cheap amazon codes, amazon redeem codes, GCHub',
     structuredData: { "@context": "https://schema.org", "@type": "ItemList", "name": "Amazon Vouchers on GCHub", "numberOfItems": currentVouchers.length, "itemListElement": currentVouchers.map((v, i) => ({ "@type": "ListItem", "position": i + 1, "item": { "@type": "Product", "name": v.name, "description": v.description, "offers": { "@type": "Offer", "priceCurrency": "INR", "price": v.price, "availability": v.stockQuantity === 0 ? "https://schema.org/OutOfStock" : "https://schema.org/InStock" } } })) }
   })
 
@@ -87,7 +95,6 @@ const GiftCardAmazon = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <div className="text-center mb-6 sm:mb-8">
           <h1 className="text-3xl sm:text-4xl lg:text-4xl font-black text-slate-800 mb-3">
-            Amazon{' '}
             <span className="bg-gradient-to-r from-emerald-500 to-teal-600 bg-clip-text text-transparent">
               {currentBrand}
             </span>
@@ -116,22 +123,6 @@ const GiftCardAmazon = () => {
               <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-500">
                 <ChevronDown className="w-5 h-5" />
               </div>
-            </div>
-
-            <div className="flex flex-wrap gap-2 mt-3 justify-center">
-              {brandOptions.map(b => (
-                <button
-                  key={b}
-                  onClick={() => setSelectedBrand(b)}
-                  className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                    currentBrand === b
-                      ? 'bg-emerald-600 text-white shadow-md'
-                      : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-                  }`}
-                >
-                  {b}
-                </button>
-              ))}
             </div>
           </div>
         )}
