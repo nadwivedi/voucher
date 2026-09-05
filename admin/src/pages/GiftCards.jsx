@@ -185,7 +185,11 @@ const GiftCards = () => {
   const handleAddVariant = async () => {
     if (!newVariantForm.originalPrice || !newVariantForm.price) return toast.error('Prices are required')
     const payload = {
-      seoTitle: `${selectedBrand} Code - ₹${newVariantForm.originalPrice} Voucher`,
+      seoTitle: selectedBrand === 'Amazon Pay Gift Card'
+        ? `Amazon Pay ₹${newVariantForm.originalPrice} Gift Card`
+        : selectedBrand === 'Amazon Shopping Voucher'
+        ? `Amazon Shopping ₹${newVariantForm.originalPrice} Voucher`
+        : `${selectedBrand} Code - ₹${newVariantForm.originalPrice} Voucher`,
       description: `₹${newVariantForm.originalPrice} ${selectedBrand} Gift Card at just ₹${newVariantForm.price}.`,
       category: 'gift-cards',
       subCategory: 'digital-vouchers',

@@ -85,8 +85,8 @@ export const giftCards = {
   },
   'amazon-100': {
     _id: 'amazon-100',
-    name: 'Amazon Pay Gift Card - ₹100',
-    fullName: 'Amazon Pay Gift Card - ₹100',
+    name: 'Amazon Pay ₹100 Gift Card',
+    fullName: 'Amazon Pay ₹100 Gift Card',
     brand: 'Amazon Pay Gift Card',
     slug: 'amazon-100',
     img: '/products/amazon.avif',
@@ -97,8 +97,8 @@ export const giftCards = {
   },
   'amazon-500': {
     _id: 'amazon-500',
-    name: 'Amazon Pay Gift Card - ₹500',
-    fullName: 'Amazon Pay Gift Card - ₹500',
+    name: 'Amazon Pay ₹500 Gift Card',
+    fullName: 'Amazon Pay ₹500 Gift Card',
     brand: 'Amazon Pay Gift Card',
     slug: 'amazon-500',
     img: '/products/amazon.avif',
@@ -109,8 +109,8 @@ export const giftCards = {
   },
   'amazon-1000': {
     _id: 'amazon-1000',
-    name: 'Amazon Pay Gift Card - ₹1000',
-    fullName: 'Amazon Pay Gift Card - ₹1000',
+    name: 'Amazon Pay ₹1000 Gift Card',
+    fullName: 'Amazon Pay ₹1000 Gift Card',
     brand: 'Amazon Pay Gift Card',
     slug: 'amazon-1000',
     img: '/products/amazon.avif',
@@ -121,8 +121,8 @@ export const giftCards = {
   },
   'amazon-2000': {
     _id: 'amazon-2000',
-    name: 'Amazon Pay Gift Card - ₹2000',
-    fullName: 'Amazon Pay Gift Card - ₹2000',
+    name: 'Amazon Pay ₹2000 Gift Card',
+    fullName: 'Amazon Pay ₹2000 Gift Card',
     brand: 'Amazon Pay Gift Card',
     slug: 'amazon-2000',
     img: '/products/amazon.avif',

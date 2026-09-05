@@ -7,17 +7,17 @@ import { useSEO } from '../hooks/useSEO'
 import { ChevronDown } from 'lucide-react'
 
 const fallbackAmazonGiftCards = [
-  { _id: 'amazon-gc-100', name: 'Amazon Pay Gift Card - ₹100', price: 88, originalPrice: 100, brand: 'Amazon Pay Gift Card', category: 'gift-cards', images: ['/products/amazon.avif'], description: '₹100 Amazon Pay Gift Card at just ₹88', stockQuantity: 50 },
-  { _id: 'amazon-gc-500', name: 'Amazon Pay Gift Card - ₹500', price: 435, originalPrice: 500, brand: 'Amazon Pay Gift Card', category: 'gift-cards', images: ['/products/amazon.avif'], description: '₹500 Amazon Pay Gift Card at just ₹435', stockQuantity: 50 },
-  { _id: 'amazon-gc-1000', name: 'Amazon Pay Gift Card - ₹1000', price: 870, originalPrice: 1000, brand: 'Amazon Pay Gift Card', category: 'gift-cards', images: ['/products/amazon.avif'], description: '₹1000 Amazon Pay Gift Card at just ₹870', stockQuantity: 50 },
-  { _id: 'amazon-gc-2000', name: 'Amazon Pay Gift Card - ₹2000', price: 1740, originalPrice: 2000, brand: 'Amazon Pay Gift Card', category: 'gift-cards', images: ['/products/amazon.avif'], description: '₹2000 Amazon Pay Gift Card at just ₹1740', stockQuantity: 50 },
+  { _id: 'amazon-gc-100', name: 'Amazon Pay ₹100 Gift Card', price: 88, originalPrice: 100, brand: 'Amazon Pay Gift Card', category: 'gift-cards', images: ['/products/amazon.avif'], description: '₹100 Amazon Pay Gift Card at just ₹88', stockQuantity: 50 },
+  { _id: 'amazon-gc-500', name: 'Amazon Pay ₹500 Gift Card', price: 435, originalPrice: 500, brand: 'Amazon Pay Gift Card', category: 'gift-cards', images: ['/products/amazon.avif'], description: '₹500 Amazon Pay Gift Card at just ₹435', stockQuantity: 50 },
+  { _id: 'amazon-gc-1000', name: 'Amazon Pay ₹1000 Gift Card', price: 870, originalPrice: 1000, brand: 'Amazon Pay Gift Card', category: 'gift-cards', images: ['/products/amazon.avif'], description: '₹1000 Amazon Pay Gift Card at just ₹870', stockQuantity: 50 },
+  { _id: 'amazon-gc-2000', name: 'Amazon Pay ₹2000 Gift Card', price: 1740, originalPrice: 2000, brand: 'Amazon Pay Gift Card', category: 'gift-cards', images: ['/products/amazon.avif'], description: '₹2000 Amazon Pay Gift Card at just ₹1740', stockQuantity: 50 },
 ]
 
 const fallbackAmazonShoppingVouchers = [
-  { _id: 'amazon-sv-100', name: 'Amazon Shopping Voucher - ₹100', price: 90, originalPrice: 100, brand: 'Amazon Shopping Voucher', category: 'gift-cards', images: ['/products/amazon.avif'], description: '₹100 Amazon Shopping Voucher at just ₹90', stockQuantity: 50 },
-  { _id: 'amazon-sv-500', name: 'Amazon Shopping Voucher - ₹500', price: 445, originalPrice: 500, brand: 'Amazon Shopping Voucher', category: 'gift-cards', images: ['/products/amazon.avif'], description: '₹500 Amazon Shopping Voucher at just ₹445', stockQuantity: 50 },
-  { _id: 'amazon-sv-1000', name: 'Amazon Shopping Voucher - ₹1000', price: 885, originalPrice: 1000, brand: 'Amazon Shopping Voucher', category: 'gift-cards', images: ['/products/amazon.avif'], description: '₹1000 Amazon Shopping Voucher at just ₹885', stockQuantity: 50 },
-  { _id: 'amazon-sv-2000', name: 'Amazon Shopping Voucher - ₹2000', price: 1770, originalPrice: 2000, brand: 'Amazon Shopping Voucher', category: 'gift-cards', images: ['/products/amazon.avif'], description: '₹2000 Amazon Shopping Voucher at just ₹1770', stockQuantity: 50 },
+  { _id: 'amazon-sv-100', name: 'Amazon Shopping ₹100 Voucher', price: 90, originalPrice: 100, brand: 'Amazon Shopping Voucher', category: 'gift-cards', images: ['/products/amazon.avif'], description: '₹100 Amazon Shopping Voucher at just ₹90', stockQuantity: 50 },
+  { _id: 'amazon-sv-500', name: 'Amazon Shopping ₹500 Voucher', price: 445, originalPrice: 500, brand: 'Amazon Shopping Voucher', category: 'gift-cards', images: ['/products/amazon.avif'], description: '₹500 Amazon Shopping Voucher at just ₹445', stockQuantity: 50 },
+  { _id: 'amazon-sv-1000', name: 'Amazon Shopping ₹1000 Voucher', price: 885, originalPrice: 1000, brand: 'Amazon Shopping Voucher', category: 'gift-cards', images: ['/products/amazon.avif'], description: '₹1000 Amazon Shopping Voucher at just ₹885', stockQuantity: 50 },
+  { _id: 'amazon-sv-2000', name: 'Amazon Shopping ₹2000 Voucher', price: 1770, originalPrice: 2000, brand: 'Amazon Shopping Voucher', category: 'gift-cards', images: ['/products/amazon.avif'], description: '₹2000 Amazon Shopping Voucher at just ₹1770', stockQuantity: 50 },
 ]
 
 const formatPrice = (price) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(price)
@@ -68,10 +68,11 @@ const GiftCardAmazon = () => {
 
   const currentVouchers = filteredFromDb.length > 0 
     ? filteredFromDb.map(p => {
-        let name = p.seoTitle || p.name || `${currentBrand} - ₹${p.originalPrice || p.price}`
-        name = name
-          .replace(/Amazon Gift Card/gi, currentBrand)
-          .replace(/^Amazon\s*-\s*/gi, `${currentBrand} - `)
+        const denom = p.originalPrice || p.price
+        const isShoppingVoucher = currentBrand === 'Amazon Shopping Voucher'
+        const name = isShoppingVoucher 
+          ? `Amazon Shopping ₹${denom} Voucher`
+          : `Amazon Pay ₹${denom} Gift Card`
         return {
           ...p,
           name,
