@@ -182,6 +182,19 @@ const GiftCards = () => {
     }
   }
 
+  const handleDeleteVariant = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this variant? This will remove the variant permanently.')) return
+    try {
+      const res = await axios.delete(`${BACKEND_URL}/api/products/${id}`, { withCredentials: true })
+      if (res.data.success) {
+        toast.success('Variant deleted successfully')
+        fetchData()
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to delete variant')
+    }
+  }
+
   const handleAddVariant = async () => {
     if (!newVariantForm.originalPrice || !newVariantForm.price) return toast.error('Prices are required')
     const payload = {
@@ -437,11 +450,14 @@ const GiftCards = () => {
                           
                           {isEditing ? (
                             <>
-                              <button onClick={() => setEditingVariant(null)} className="p-1.5 text-gray-400 hover:bg-gray-100 rounded"><X className="w-4 h-4" /></button>
-                              <button onClick={() => handleSaveVariant(p._id)} className="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded"><Save className="w-4 h-4" /></button>
+                              <button onClick={() => setEditingVariant(null)} className="p-1.5 text-gray-400 hover:bg-gray-100 rounded" title="Cancel"><X className="w-4 h-4" /></button>
+                              <button onClick={() => handleSaveVariant(p._id)} className="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded" title="Save"><Save className="w-4 h-4" /></button>
                             </>
                           ) : (
-                            <button onClick={() => handleEditClick(p)} className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded"><Settings className="w-4 h-4" /></button>
+                            <>
+                              <button onClick={() => handleEditClick(p)} className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded" title="Edit Variant"><Settings className="w-4 h-4" /></button>
+                              <button onClick={() => handleDeleteVariant(p._id)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded" title="Delete Variant"><Trash2 className="w-4 h-4" /></button>
+                            </>
                           )}
                         </div>
                       </div>
